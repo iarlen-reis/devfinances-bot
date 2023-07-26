@@ -12,6 +12,17 @@ datasource db {
 }
 
 model User {
-  userId    String   @unique
-  createdAt DateTime @default(now())
+  userId    String    @unique
+  createdAt DateTime  @default(now())
+  expense   Expense[]
+}
+
+model Expense {
+  id       String @id @unique @default(uuid())
+  name     String
+  amount   String
+  createBy String
+  user     User   @relation(fields: [createBy], references: [userId])
+
+  @@index([createBy])
 }
