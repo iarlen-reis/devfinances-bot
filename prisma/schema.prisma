@@ -12,17 +12,18 @@ datasource db {
 }
 
 model User {
-  userId    String    @unique
+  userId    Int       @unique
   createdAt DateTime  @default(now())
   expense   Expense[]
 }
 
 model Expense {
-  id       String @id @unique @default(uuid())
-  name     String
-  amount   String
-  createBy String
-  user     User   @relation(fields: [createBy], references: [userId])
+  id        String   @id @unique @default(uuid())
+  name      String
+  amount    String
+  createBy  Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [createBy], references: [userId])
 
   @@index([createBy])
 }
