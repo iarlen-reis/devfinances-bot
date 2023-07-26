@@ -2,7 +2,7 @@ import { prisma } from '../utils/prisma'
 
 export class UserController {
   wellcome = (
-    userId: string,
+    userId: number,
     username: string | undefined,
     sendMessage: (text: string) => void,
   ) => {
@@ -20,7 +20,7 @@ export class UserController {
     )
   }
 
-  register = async (userId: string) => {
+  register = async (userId: number) => {
     const user = await prisma.user.findFirst({
       where: {
         userId,
@@ -31,10 +31,12 @@ export class UserController {
       return user
     }
 
-    await prisma.user.create({
+    const creatingUser = await prisma.user.create({
       data: {
         userId,
       },
     })
+
+    return creatingUser
   }
 }
