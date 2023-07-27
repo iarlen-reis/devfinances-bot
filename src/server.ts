@@ -51,13 +51,45 @@ class Bot {
         amount: expenseAmount,
       }
 
-      this.expenseController.create(userId, expense, sendMessage)
+      this.expenseController.create({ userId, expense, sendMessage })
+    })
+
+    this.bot.onText(/\/finance (.+)/, (msg, match) => {
+      const { userId, sendMessage } = this.getMessage(msg)
+
+      if (!match) {
+        return sendMessage('Por favor, envie no formato: /finance ID.')
+      }
+
+      const [expenseId] = match[1].split(' ')
+
+      if (!expenseId) {
+        return sendMessage('Por favor, envie no formato: /finance ID.')
+      }
+
+      this.expenseController.getExpense({ userId, expenseId, sendMessage })
+    })
+
+    this.bot.onText(/\/remove (.+)/, (msg, match) => {
+      const { userId, sendMessage } = this.getMessage(msg)
+
+      if (!match) {
+        return sendMessage('Por favor, envie no formato: /remove ID.')
+      }
+
+      const [expenseId] = match[1].split(' ')
+
+      if (!expenseId) {
+        return sendMessage('Por favor, envie no formato: /remove ID.')
+      }
+
+      this.expenseController.deleteExpense({ userId, expenseId, sendMessage })
     })
 
     this.bot.onText(/\/finances/, (msg) => {
       const { userId, sendMessage } = this.getMessage(msg)
 
-      this.expenseController.getAllExpenses(userId, sendMessage)
+      this.expenseController.getAllExpenses({ userId, sendMessage })
     })
 
     this.bot.onText(/\/profile/, (msg) => {
