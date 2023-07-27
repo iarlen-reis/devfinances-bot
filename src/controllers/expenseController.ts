@@ -7,6 +7,14 @@ interface IExpenseProps {
   amount: string
 }
 
+interface IMethodProps {
+  userId: number
+  username?: string
+  expenseId?: string
+  expense?: IExpenseProps
+  sendMessage: (text: string) => void
+}
+
 export class ExpenseController {
   userController: UserController
   commandController: CommandController
@@ -16,11 +24,9 @@ export class ExpenseController {
     this.commandController = new CommandController()
   }
 
-  create = async (
-    userId: number,
-    expense: IExpenseProps,
-    sendMessage: (text: string) => void,
-  ) => {
+  create = async ({ userId, expense, sendMessage }: IMethodProps) => {
+    if (!expense) return
+
     const user = await this.userController.register(userId)
 
     const creatingExpense = await prisma.expense.create({
@@ -34,10 +40,7 @@ export class ExpenseController {
     this.commandController.expenseCreateWithSucess(creatingExpense, sendMessage)
   }
 
-  getAllExpenses = async (
-    userId: number,
-    sendMessage: (text: string) => void,
-  ) => {
+  getAllExpenses = async ({ userId, sendMessage }: IMethodProps) => {
     const expenses = await prisma.expense.findMany({
       where: {
         createBy: userId,
@@ -49,5 +52,41 @@ export class ExpenseController {
     }
 
     this.commandController.allExpenses(expenses, sendMessage)
+  }
+
+  getExpense = async ({ userId, expenseId, sendMessage }: IMethodProps) => {
+    const expense = await prisma.expense.findUnique({
+      where: {
+        id: expenseId,
+        createBy: userId,
+      },
+    })
+
+    if (!expense) {
+      return sendMessage('Essa despesa não existe.')
+    }
+
+    this.commandController.expenseFoundWithSuccess(expense, sendMessage)
+  }
+
+  deleteExpense = async ({ userId, expenseId, sendMessage }: IMethodProps) => {
+    const expense = await prisma.expense.findUnique({
+      where: {
+        id: expenseId,
+        createBy: userId,
+      },
+    })
+
+    if (!expense) {
+      return sendMessage('Despesa não encontrada.')
+    }
+
+    await prisma.expense.delete({
+      where: {
+        id: expense.id,
+      },
+    })
+
+    sendMessage('Despesa excluida com sucesso!')
   }
 }
