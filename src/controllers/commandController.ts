@@ -51,4 +51,17 @@ export class CommandController {
         .join('\n')}`,
     )
   }
+
+  expenseFoundWithSuccess = (
+    expense: IExpenseProps,
+    sendMessage: (text: string) => void,
+  ) => {
+    sendMessage(
+      `Despesa selecionada:\nID: ${expense.id}\nNOME: ${
+        expense.name
+      }\nVALOR: R$ ${
+        expense.amount
+      }\nCRIADO EM: ${expense.createdAt.toLocaleDateString()}`,
+    )
+  }
 }
