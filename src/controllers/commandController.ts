@@ -36,12 +36,12 @@ export class CommandController {
     )
   }
 
-  allExpenses = (
+  allActualMonthExpenses = (
     expenses: IExpenseProps[],
     sendMessage: (text: string) => void,
   ) => {
     sendMessage(
-      `ESSES SÃO SUAS DESPESAS: \n${expenses
+      `ESSES SÃO SUAS DESPESAS DO MÊS ATUAL: \n${expenses
         .map(
           (expense) =>
             `\nID: ${expense.id}\nNOME: ${expense.name}\nVALOR: R$ ${
