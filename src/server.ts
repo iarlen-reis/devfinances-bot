@@ -13,8 +13,8 @@ class Bot {
 
   constructor() {
     this.bot = new TelegramBot(env.TELEGRAM_TOKEN, { polling: true })
-    this.userController = new UserController()
     this.commandController = new CommandController()
+    this.userController = new UserController(this.commandController)
     this.expenseController = new ExpenseController(
       this.userController,
       this.commandController,
@@ -28,12 +28,6 @@ class Bot {
       const { username, sendMessage, userId } = this.getMessage(msg)
 
       this.userController.wellcome(userId, username, sendMessage)
-    })
-
-    this.bot.onText(/\/ajuda/, (msg) => {
-      const { sendMessage } = this.getMessage(msg)
-
-      this.commandController.allCommands(sendMessage)
     })
 
     this.bot.onText(/\/criar (.+)/, (msg, match) => {
@@ -64,6 +58,20 @@ class Bot {
       const { userId, username, sendMessage } = this.getMessage(msg)
 
       this.userController.profile(userId, username, sendMessage)
+    })
+
+    this.bot.onText(/\/github/, (msg) => {
+      const { userId } = this.getMessage(msg)
+
+      const urlGithub = 'https://github.com/iarlen-reis/devfinances-bot'
+
+      this.bot.sendMessage(userId, 'Repositório no github', {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: 'Repositório', callback_data: 'github', url: urlGithub }],
+          ],
+        },
+      })
     })
   }
 
