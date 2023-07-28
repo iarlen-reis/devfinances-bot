@@ -2,8 +2,8 @@ import 'dotenv/config'
 import { env } from './utils/envShema'
 import TelegramBot, { Message } from 'node-telegram-bot-api'
 import { UserController } from './controllers/userController'
-import { CommandController } from './controllers/commandController'
 import { ExpenseController } from './controllers/expenseController'
+import { CommandController } from './controllers/commandController'
 
 class Bot {
   private bot: TelegramBot
@@ -15,7 +15,10 @@ class Bot {
     this.bot = new TelegramBot(env.TELEGRAM_TOKEN, { polling: true })
     this.userController = new UserController()
     this.commandController = new CommandController()
-    this.expenseController = new ExpenseController()
+    this.expenseController = new ExpenseController(
+      this.userController,
+      this.commandController,
+    )
 
     this.start()
   }
@@ -36,66 +39,31 @@ class Bot {
     this.bot.onText(/\/add (.+)/, (msg, match) => {
       const { userId, sendMessage } = this.getMessage(msg)
 
-      if (!match) {
-        return sendMessage('Por favor, envie no formato: /add uber 34.90.')
-      }
-
-      const [expenseName, expenseAmount] = match[1].split(' ')
-
-      if (!expenseName || !expenseAmount) {
-        return this.commandController.formatExpenseIvalid(sendMessage)
-      }
-
-      const expense = {
-        name: expenseName,
-        amount: expenseAmount,
-      }
-
-      this.expenseController.create({ userId, expense, sendMessage })
+      this.expenseController.create({ userId, match, sendMessage })
     })
 
     this.bot.onText(/\/finance (.+)/, (msg, match) => {
       const { userId, sendMessage } = this.getMessage(msg)
 
-      if (!match) {
-        return sendMessage('Por favor, envie no formato: /finance ID.')
-      }
-
-      const [expenseId] = match[1].split(' ')
-
-      if (!expenseId) {
-        return sendMessage('Por favor, envie no formato: /finance ID.')
-      }
-
-      this.expenseController.getExpense({ userId, expenseId, sendMessage })
+      this.expenseController.getExpense({ userId, match, sendMessage })
     })
 
     this.bot.onText(/\/remove (.+)/, (msg, match) => {
       const { userId, sendMessage } = this.getMessage(msg)
 
-      if (!match) {
-        return sendMessage('Por favor, envie no formato: /remove ID.')
-      }
-
-      const [expenseId] = match[1].split(' ')
-
-      if (!expenseId) {
-        return sendMessage('Por favor, envie no formato: /remove ID.')
-      }
-
-      this.expenseController.deleteExpense({ userId, expenseId, sendMessage })
+      this.expenseController.deleteExpense({ userId, match, sendMessage })
     })
 
     this.bot.onText(/\/finances/, (msg) => {
       const { userId, sendMessage } = this.getMessage(msg)
 
-      this.expenseController.getAllExpenses({ userId, sendMessage })
+      this.expenseController.getAllActualMonthExpenses({ userId, sendMessage })
     })
 
     this.bot.onText(/\/profile/, (msg) => {
       const { userId, username, sendMessage } = this.getMessage(msg)
 
-      this.userController.profile(userId.toString(), username, sendMessage)
+      this.userController.profile(userId, username, sendMessage)
     })
 
     this.bot.onText(/\/comandos/, (msg) => {
@@ -113,7 +81,9 @@ class Bot {
     const { id: userId, first_name: username } = msg.chat
 
     const sendMessage = (text: string) => {
-      this.bot.sendMessage(userId, text)
+      this.bot.sendMessage(userId, text, {
+        reply_to_message_id: msg.message_id,
+      })
     }
 
     return { userId, username, sendMessage }
