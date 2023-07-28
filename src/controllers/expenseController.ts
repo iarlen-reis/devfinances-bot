@@ -1,40 +1,43 @@
-import { getFirstAndLastDayMonth } from '../utils/getFirstAndLastDayOfMonth'
 import { prisma } from '../utils/prisma'
+import { getFirstAndLastDayMonth } from '../utils/getFirstAndLastDayOfMonth'
 import { CommandController } from './commandController'
 import { UserController } from './userController'
-
-interface IExpenseProps {
-  name: string
-  amount: string
-}
 
 interface IMethodProps {
   userId: number
   username?: string
   expenseId?: string
-  expense?: IExpenseProps
+  match?: RegExpExecArray | null
   sendMessage: (text: string) => void
 }
 
 export class ExpenseController {
-  userController: UserController
-  commandController: CommandController
-
-  constructor() {
-    this.userController = new UserController()
-    this.commandController = new CommandController()
+  constructor(
+    private userController: UserController,
+    private commandController: CommandController,
+  ) {
+    this.userController = userController
+    this.commandController = commandController
   }
 
-  create = async ({ userId, expense, sendMessage }: IMethodProps) => {
-    if (!expense) return
+  create = async ({ userId, match, sendMessage }: IMethodProps) => {
+    if (!match) {
+      return sendMessage('Por favor, envie no formato /add Uber 19.50')
+    }
+
+    const [name, amount] = match[1].split(' ')
+
+    if (!name || !amount) {
+      return sendMessage('Por favor, envie no formato /add Uber 19.50')
+    }
 
     const user = await this.userController.register(userId)
 
     const creatingExpense = await prisma.expense.create({
       data: {
         createBy: user.userId,
-        name: expense.name,
-        amount: expense.amount,
+        name,
+        amount,
       },
     })
 
@@ -61,7 +64,13 @@ export class ExpenseController {
     this.commandController.allActualMonthExpenses(expenses, sendMessage)
   }
 
-  getExpense = async ({ userId, expenseId, sendMessage }: IMethodProps) => {
+  getExpense = async ({ userId, match, sendMessage }: IMethodProps) => {
+    if (!match) {
+      return sendMessage('Por favor, envie no formato /add Uber 19.50')
+    }
+
+    const expenseId = match[1]
+
     const expense = await prisma.expense.findUnique({
       where: {
         id: expenseId,
@@ -76,7 +85,13 @@ export class ExpenseController {
     this.commandController.expenseFoundWithSuccess(expense, sendMessage)
   }
 
-  deleteExpense = async ({ userId, expenseId, sendMessage }: IMethodProps) => {
+  deleteExpense = async ({ userId, match, sendMessage }: IMethodProps) => {
+    if (!match) {
+      return sendMessage('Por favor, envie no formato /add Uber 19.50')
+    }
+
+    const expenseId = match[1]
+
     const expense = await prisma.expense.findUnique({
       where: {
         id: expenseId,
