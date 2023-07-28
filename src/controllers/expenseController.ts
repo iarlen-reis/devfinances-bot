@@ -1,3 +1,4 @@
+import { getFirstAndLastDayMonth } from '../utils/getFirstAndLastDayOfMonth'
 import { prisma } from '../utils/prisma'
 import { CommandController } from './commandController'
 import { UserController } from './userController'
@@ -40,18 +41,24 @@ export class ExpenseController {
     this.commandController.expenseCreateWithSucess(creatingExpense, sendMessage)
   }
 
-  getAllExpenses = async ({ userId, sendMessage }: IMethodProps) => {
+  getAllActualMonthExpenses = async ({ userId, sendMessage }: IMethodProps) => {
+    const { firstDayOfMonth, lastDayOfMonth } = getFirstAndLastDayMonth()
+
     const expenses = await prisma.expense.findMany({
       where: {
         createBy: userId,
+        createdAt: {
+          gte: firstDayOfMonth,
+          lt: lastDayOfMonth,
+        },
       },
     })
 
     if (!expenses.length) {
-      return sendMessage('Você não possui despesa cadastrada.')
+      return sendMessage('Você não possui despesa cadastrada esse mês.')
     }
 
-    this.commandController.allExpenses(expenses, sendMessage)
+    this.commandController.allActualMonthExpenses(expenses, sendMessage)
   }
 
   getExpense = async ({ userId, expenseId, sendMessage }: IMethodProps) => {
