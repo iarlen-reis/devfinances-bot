@@ -30,50 +30,40 @@ class Bot {
       this.userController.wellcome(userId, username, sendMessage)
     })
 
-    this.bot.onText(/\/help/, (msg) => {
+    this.bot.onText(/\/ajuda/, (msg) => {
       const { sendMessage } = this.getMessage(msg)
 
       this.commandController.allCommands(sendMessage)
     })
 
-    this.bot.onText(/\/add (.+)/, (msg, match) => {
+    this.bot.onText(/\/criar (.+)/, (msg, match) => {
       const { userId, sendMessage } = this.getMessage(msg)
 
       this.expenseController.create({ userId, match, sendMessage })
     })
 
-    this.bot.onText(/\/finance (.+)/, (msg, match) => {
-      const { userId, sendMessage } = this.getMessage(msg)
-
-      this.expenseController.getExpense({ userId, match, sendMessage })
-    })
-
-    this.bot.onText(/\/remove (.+)/, (msg, match) => {
-      const { userId, sendMessage } = this.getMessage(msg)
-
-      this.expenseController.deleteExpense({ userId, match, sendMessage })
-    })
-
-    this.bot.onText(/\/finances/, (msg) => {
+    this.bot.onText(/\/gastos/, (msg) => {
       const { userId, sendMessage } = this.getMessage(msg)
 
       this.expenseController.getAllActualMonthExpenses({ userId, sendMessage })
     })
 
-    this.bot.onText(/\/profile/, (msg) => {
+    this.bot.onText(/\/gasto (.+)/, (msg, match) => {
+      const { userId, sendMessage } = this.getMessage(msg)
+
+      this.expenseController.getExpense({ userId, match, sendMessage })
+    })
+
+    this.bot.onText(/\/deletar (.+)/, (msg, match) => {
+      const { userId, sendMessage } = this.getMessage(msg)
+
+      this.expenseController.deleteExpense({ userId, match, sendMessage })
+    })
+
+    this.bot.onText(/\/perfil/, (msg) => {
       const { userId, username, sendMessage } = this.getMessage(msg)
 
       this.userController.profile(userId, username, sendMessage)
-    })
-
-    this.bot.onText(/\/comandos/, (msg) => {
-      const { userId } = this.getMessage(msg)
-
-      this.bot.sendMessage(userId, 'Listas dos comandos:', {
-        reply_markup: {
-          keyboard: [[{ text: '/help' }, { text: '/comandos' }]],
-        },
-      })
     })
   }
 
