@@ -1,14 +1,20 @@
 import { expensesFilterByMonth } from '../utils/getAllExpensesMounth'
 import { prisma } from '../utils/prisma'
+import { CommandController } from './commandController'
 
 export class UserController {
+  constructor(private commandController: CommandController) {
+    this.commandController = commandController
+  }
+
   wellcome = (
     userId: number,
     username: string | undefined,
     sendMessage: (text: string) => void,
   ) => {
     this.register(userId)
-    sendMessage(`Olá ${username}, seja bem-vindo ao devFinances!`)
+
+    this.commandController.allCommands(username, sendMessage)
   }
 
   profile = async (

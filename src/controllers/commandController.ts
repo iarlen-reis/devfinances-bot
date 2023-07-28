@@ -8,9 +8,12 @@ interface IExpenseProps {
 }
 
 export class CommandController {
-  allCommands = (sendMessage: (text: string) => void) => {
+  allCommands = (
+    username: string | undefined,
+    sendMessage: (text: string) => void,
+  ) => {
     sendMessage(
-      `${commands
+      `Olá! ${username}, seja bem-vindo ao devFinances!\n \nLISTA DE COMANDOS:\n\n${commands
         .map(
           (comand) =>
             `COMANDO: ${comand.command} \nDESCRIÇÃO: ${comand.description}\n`,
