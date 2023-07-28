@@ -1,3 +1,4 @@
+import { expensesFilterByMonth } from '../utils/getAllExpensesMounth'
 import { prisma } from '../utils/prisma'
 
 export class UserController {
@@ -10,13 +11,22 @@ export class UserController {
     sendMessage(`Olá ${username}, seja bem-vindo ao devFinances!`)
   }
 
-  profile = (
-    userId: string,
+  profile = async (
+    userId: number,
     username: string | undefined,
     sendMessage: (text: string) => void,
   ) => {
+    const expenses = await prisma.expense.findMany({
+      where: {
+        createBy: userId,
+      },
+    })
+
+    const { allActualMonthExpenses, allFinances } =
+      expensesFilterByMonth(expenses)
+
     sendMessage(
-      `Olá ${username}, esses são seus dados: \nNOME: ${username} \nFINANÇAS MENSAL: 0 \nFINANÇAS TOTAL: 0`,
+      `OLÁ ${username?.toUpperCase()}, ESSES SÃO SEUS DADOS: \nFINANÇAS MENSAL ATUAL: ${allActualMonthExpenses} \nFINANÇAS TOTAL: ${allFinances}`,
     )
   }
 
