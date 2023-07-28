@@ -1,10 +1,6 @@
 # DevFinances - Telegram Bot
 
-<style>
-  .list-item {
-    margin-bottom: 10px; 
-  }
-</style>
+<img src="./src/assets/telegram.png" alt="github image">
 
 <p>
   DevFinances é um bot feito utilizando nodeJs, com Typescript, mMysql com Prisma e a API Node-Telegram-Bot.
@@ -36,6 +32,14 @@
     /github - Ao utilizar o comando <b>/github</b>, o usuário repositório do GitHub.
   </li>
 </ul>
+
+## Funcionalidades: 
+
+- [x] Autenticação de usuário por ID.
+- [x] Criar, visualizar e deletar gastos.
+- [x] Exibir gastos do mes atual.
+- [x] Perfil do usuário.
+- [ ] Exibir gastos de um mes específico.
 
 ## Ferramentas:
 
